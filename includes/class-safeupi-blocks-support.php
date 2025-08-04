@@ -28,7 +28,7 @@ final class WC_Gateway_SafeUPI_Blocks_Support extends AbstractPaymentMethodType
                 'wp-html-entities',
                 'wp-i18n',
             ],
-            null,
+            SAFEUPI_WOOCOMMERCE_VERSION,
             true
         );
         if (function_exists('wp_set_script_translations')) {
@@ -39,8 +39,8 @@ final class WC_Gateway_SafeUPI_Blocks_Support extends AbstractPaymentMethodType
     public function get_payment_method_data()
     {
         return [
-            'title'       => $this->settings['title'] ?? __('SafeUPi', 'safeupi-gateway'),
-            'description' => $this->settings['description'] ?? __('Scan QR Code and pay instantly', 'safeupi-gateway'),
+            'title'       => $this->settings['title'] ?? __('SafeUPi', 'safeupi-woo'),
+            'description' => $this->settings['description'] ?? __('Scan QR Code and pay instantly', 'safeupi-woo'),
         ];
     }
 }

@@ -1,4 +1,6 @@
 <?php
+define('SAFEUPI_WOOCOMMERCE_VERSION', '1.1.0');
+
 
 /**
  * Plugin Name: SafeUPi Gateway for WooCommerce
@@ -7,7 +9,8 @@
  * Requires at least: 5.9
  * Requires PHP: 7.4
  * Author: <a href="https://safeupi.com">SafeUPi</a>
- * Text Domain: safeupi-gateway
+ * Text Domain: safeupi-woo
+ * License: GPLv2 or later
  */
 
 if (! defined('ABSPATH')) exit;
@@ -62,7 +65,7 @@ add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'safeupi_add_sett
 function safeupi_add_settings_link($links)
 {
     $url = admin_url('admin.php?page=wc-settings&tab=checkout&section=safeupi');
-    $links['settings'] = '<a href="' . esc_url($url) . '">' . esc_html__('Settings', 'safeupi-gateway') . '</a>';
+    $links['settings'] = '<a href="' . esc_url($url) . '">' . esc_html__('Settings', 'safeupi-woo') . '</a>';
     return $links;
 }
 
@@ -72,7 +75,7 @@ function my_plugin_activate()
     // Check if WooCommerce is active
     if (!class_exists('WooCommerce')) {
         deactivate_plugins(plugin_basename(__FILE__));
-        wp_die(__('This plugin requires WooCommerce to be installed and activated.', 'safeupi-gateway'));
+        wp_die(esc_html__('This plugin requires WooCommerce to be installed and activated.', 'safeupi-woo'));
     }
 
     // Flush rewrite rules to ensure the new REST route is registered

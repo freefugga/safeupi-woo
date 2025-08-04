@@ -62,71 +62,70 @@ class WC_Gateway_SafeUPI extends WC_Payment_Gateway
         preg_match('/Current IP Address: \[?([:.0-9a-fA-F]+)\]?/', $externalContent, $m);
         $externalIp = $m[1];
 
+        // translators: %s is the external IP address shown to the user to whitelist in SafeUPi dashboard.
+        $apiDesc = sprintf(
+            __(
+                "To get your API Token:\n1. Log in to your SafeUPi Dashboard.\n2. Go to API Tokens.\n3. Click 'Create' if you haven't generated a token yet.\n4. Add this IP Address: %s for security.\n5. Click the 'Create' button.\n6. Click the copy icon to copy your API Token and paste it here.",
+                'safeupi-woo'
+            ),
+            $externalIp
+        );
+
+        $webhookSecretDescription = __(
+            "To create your Webhook Secret:\n1. In your SafeUPi Dashboard, go to Webhooks.\n2. Create or edit a webhook.\n3. Copy the Webhook Secret and paste it here.",
+            'safeupi-woo'
+        );
+
         $this->form_fields = [
             'enabled' => [
-                'title'   => __('Enable/Disable', 'safeupi-gateway'),
+                'title'   => __('Enable/Disable', 'safeupi-woo'),
                 'type'    => 'checkbox',
-                'label'   => __('Enable SafeUPI', 'safeupi-gateway'),
+                'label'   => __('Enable SafeUPI', 'safeupi-woo'),
                 'default' => 'yes',
             ],
 
             'title' => [
-                'title'       => __('Title', 'safeupi-gateway'),
+                'title'       => __('Title', 'safeupi-woo'),
                 'type'        => 'text',
-                'description' => __('Shown on checkout.', 'safeupi-gateway'),
-                'default'     => __('SafeUPi', 'safeupi-gateway'),
+                'description' => __('Shown on checkout.', 'safeupi-woo'),
+                'default'     => __('SafeUPi', 'safeupi-woo'),
             ],
 
             'description' => [
-                'title'       => __('Description', 'safeupi-gateway'),
+                'title'       => __('Description', 'safeupi-woo'),
                 'type'        => 'textarea',
-                'default'     => __('You will be redirected to SafeUPI to complete payment.', 'safeupi-gateway'),
+                'default'     => __('You will be redirected to SafeUPI to complete payment.', 'safeupi-woo'),
             ],
 
             'secret' => [
-                'title'       => __('API Token', 'safeupi-gateway'),
+                'title'       => __('API Token', 'safeupi-woo'),
                 'type'        => 'password',
-                'description' => __(
-                    "To get your API Token:\n" .
-                        "1. Log in to your SafeUPi Dashboard.\n" .
-                        "2. Go to API Tokens.\n" .
-                        "3. Click 'Create' if you haven't generated a token yet.\n" .
-                        "4. Add this IP Address: " . $externalIp . " for security.\n" .
-                        "5. Click the 'Create' button.\n" .
-                        "6. Click the copy icon to copy your API Token and paste it here.",
-                    'safeupi-gateway'
-                ),
+                'description' => $apiDesc,
             ],
 
             'merchant_upi_id' => [
-                'title'       => __('Merchant UPI ID', 'safeupi-gateway'),
+                'title'       => __('Merchant UPI ID', 'safeupi-woo'),
                 'type'        => 'text',
                 'description' => __(
                     "Enter your Merchant UPI ID. This is used to identify your account for UPI payments and verify that the correct account is receiving the payments. Go to SafeUPi Dashboard -> Merchant Connected and see UPI ID in Account Information section to find your UPI ID.",
-                    'safeupi-gateway'
+                    'safeupi-woo'
                 ),
-                'placeholder' => __('xxxxx@pyts', 'safeupi-gateway'),
+                'placeholder' => __('xxxxx@pyts', 'safeupi-woo'),
                 'default'     => null,
             ],
 
             'webhook_url' => [
-                'title'       => __('Webhook URL', 'safeupi-gateway'),
+                'title'       => __('Webhook URL', 'safeupi-woo'),
                 'type'        => 'text',
-                'description' => __('Copy this URL and paste it into your SafeUPi Dashboard -> Webhooks.', 'safeupi-gateway'),
+                'description' => __('Copy this URL and paste it into your SafeUPi Dashboard -> Webhooks.', 'safeupi-woo'),
                 'default'     => home_url('/wp-json/safeupi/v1/webhook'),
                 'custom_attributes' => ['readonly' => 'readonly', 'onclick' => 'this.select()'],
             ],
 
             'webhook_secret' => [
-                'title'       => __('Webhook Secret', 'safeupi-gateway'),
+                'title'       => __('Webhook Secret', 'safeupi-woo'),
                 'type'        => 'password',
-                'description' => __(
-                    "To create your Webhook Secret:\n" .
-                        "1. In your SafeUPi Dashboard, go to Webhooks.\n" .
-                        "2. Create or edit a webhook.\n" .
-                        "3. Copy the Webhook Secret and paste it here.",
-                    'safeupi-gateway'
-                ),
+                'description' => $webhookSecretDescription,
             ],
         ];
     }
@@ -134,9 +133,8 @@ class WC_Gateway_SafeUPI extends WC_Payment_Gateway
     public function process_payment($order_id)
     {
         if ($this->merchant_upi_id === null || empty($this->merchant_upi_id)) {
-            error_log("Merchant UPI ID is empty, not set. Please configure it in Plugins -> SafeUPi Gateway for Woocommerce -> Merchant UPI ID");
-            wc_add_notice(__('Merchant UPI ID is not set. Please configure it in the payment settings.', 'safeupi-gateway'), 'error');
-            return ['result' => 'failure', 'message' => __('Merchant UPI ID is not set. Please configure it in the payment settings.', 'safeupi-gateway')];
+            wc_add_notice(__('Merchant UPI ID is not set. Please configure it in the payment settings.', 'safeupi-woo'), 'error');
+            return ['result' => 'failure', 'message' => __('Merchant UPI ID is not set. Please configure it in the payment settings.', 'safeupi-woo')];
         }
 
         $order = wc_get_order($order_id);
@@ -167,14 +165,13 @@ class WC_Gateway_SafeUPI extends WC_Payment_Gateway
         $body = json_decode(wp_remote_retrieve_body($resp), true);
 
         if (empty($body['success']) || !$body['success']) {
-            error_log('SafeUPI payment response: ' . print_r($body, true));
             wc_add_notice($body['message'] ?? 'Payment creation failed', 'error');
             return ['result' => 'failure', 'message' => $body['message'] ?? 'Payment creation failed'];
         }
 
         if (hash('sha256', $this->merchant_upi_id) !== $body['data']['merchant_upi_id']) {
-            wc_add_notice(__('Merchant UPI ID mismatch. Please check your settings.', 'safeupi-gateway'), 'error');
-            return ['result' => 'failure', 'message' => __('Merchant UPI ID mismatch. Please check your settings.', 'safeupi-gateway')];
+            wc_add_notice(__('Merchant UPI ID mismatch. Please check your settings.', 'safeupi-woo'), 'error');
+            return ['result' => 'failure', 'message' => __('Merchant UPI ID mismatch. Please check your settings.', 'safeupi-woo')];
         }
 
         // Store SafeUPI system order id for later status checks
