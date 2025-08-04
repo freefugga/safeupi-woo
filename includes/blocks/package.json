@@ -1,0 +1,17 @@
+{
+  "name": "wc-safeupi-blocks",
+  "version": "1.0.0",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start"
+  },
+  "devDependencies": {
+    "@woocommerce/dependency-extraction-webpack-plugin": "^2.2.0",
+    "@woocommerce/extend-cart-checkout-block": "^1.0.0",
+    "@wordpress/scripts": "^27.9.0"
+  },
+  "dependencies": {
+    "@wordpress/html-entities": "^4.26.0"
+  }
+}
